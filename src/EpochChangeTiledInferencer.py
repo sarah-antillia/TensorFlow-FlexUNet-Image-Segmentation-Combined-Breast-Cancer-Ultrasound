@@ -30,14 +30,15 @@ import tensorflow as tf
 
 from ConfigParser import ConfigParser
 
-class EpochChangeInferencer(tf.keras.callbacks.Callback):
+class EpochChangeTiledInferencer(tf.keras.callbacks.Callback):
 
   def __init__(self, flexmodel, config_file):
     self.flexmodel = flexmodel
 
     self.config = ConfigParser(config_file) 
     self.images_dir = self.config.get(ConfigParser.INFER,  "images_dir")
-    self.output_dir = self.config.get(ConfigParser.TRAIN,  "epoch_change_infer_dir", dvalue="./epoch_change_infer")
+    self.output_dir = self.config.get(ConfigParser.TRAIN,  "epoch_change_tiled_infer_dir",
+                                       dvalue="./epoch_change_tiled_infer")
     if os.path.exists(self.output_dir):
        shutil.rmtree(self.output_dir)
     os.makedirs(self.output_dir)
@@ -62,8 +63,9 @@ class EpochChangeInferencer(tf.keras.callbacks.Callback):
     self.image_files += glob.glob(self.images_dir + "/*.jpg")
     self.image_files += glob.glob(self.images_dir + "/*.tif")
     self.image_files += glob.glob(self.images_dir + "/*.bmp")
-    # 2025/09/14
+    #2025/08/26
     self.image_files = sorted(self.image_files)
+
     num_images = len(self.image_files)
     if self.num_infer_images > num_images:
         self.num_infer_images =  num_images
@@ -73,18 +75,14 @@ class EpochChangeInferencer(tf.keras.callbacks.Callback):
 
   def on_epoch_end(self, epoch, logs):
     for image_file in self.image_files:
-      #print("--- on eoch_change end {}".format(image_file))
-      #2026/0/04/16
-      img = cv2.imread(image_file)
-      predicted = self.flexmodel.predict(img)
-      #predicted = self.flexmodel.predict(image_file)
-
+      predicted = self.flexmodel.tiled_infer_file(image_file)
       basename = os.path.basename(image_file)
-      #2025/09/14
+      
+      # 2025/06/09 Added the following 2 lines.
       if basename.endswith(".jpg"):
-        #The predicted is an image of the PIL P format, so we have to save is as a PNG fille. 
-        basename = basename.replace(".jpg", ".png")
+         basename = basename.replace(".jpg", ".png")
+      filename = basename
       filename = "Epoch_" +str(epoch+1) + "_" + basename
       output_filepath = os.path.join(self.output_dir, filename)
+  
       predicted.save(output_filepath)
-      #print("Saved prediction {}".format(output_filepath))

@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-# 2025/06/05
-# TensorFlowFlexUNetInferencer.py
+# 2025/08/28
+# TensorFlowFlexUNetTiledInferencer.py
 
 import os
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     model = MODEL_CLASS(config_file)
 
     #model.load_model()
-    model.infer()
+    model.tiled_infer()
 
   except:
     traceback.print_exc()

@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-# 2025/06/05
-# TensorFlowFlexUNetInferencer.py
+# 2025/09/15
+# TensorFlowFlexUNetInspector.py
 
 import os
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
@@ -22,6 +22,7 @@ os.environ["TF_ENABLE_GPU_GARBAGE_COLLECTION"]="true"
 
 import sys
 import traceback
+
 from ConfigParser import ConfigParser
 
 # 205/07/09 Added the following classes.
@@ -46,13 +47,14 @@ if __name__ == "__main__":
       config_file = sys.argv[1]
     if not os.path.exists(config_file):
       raise Exception("Not found " + config_file)
-  
     config = ConfigParser(config_file)
-    MODEL_CLASS = eval(config.get(ConfigParser.MODEL, "model"))
-    model = MODEL_CLASS(config_file)
 
-    #model.load_model()
-    model.infer()
+    MODEL_CLASS = eval(config.get(ConfigParser.MODEL, "model"))
+    print("---MODEL_CLASS {}".format(MODEL_CLASS))
+    model = MODEL_CLASS(config_file)
+    
+    model.create_model()
+    model.inspect()
 
   except:
     traceback.print_exc()
